@@ -1,333 +1,241 @@
 
 <style>
-  #ttt-root {
-    font-family: "Poppins", sans-serif;
-    background: radial-gradient(circle at center, #2b1055, #000000);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 520px;
-    flex-direction: column;
-    color: white;
-    padding: 24px 0;
-    border-radius: 12px;
-  }
-  #ttt-root h1 {
-    color: #fff;
-    margin: 0 0 16px;
-    font-size: 1.6rem;
-    text-shadow: 0 0 20px #ff00ff;
-  }
-  .ttt-controls { margin-bottom: 12px; display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; align-items: center; }
-  .ttt-label { font-weight: 500; color: #ff00ff; text-shadow: 0 0 10px #ff00ff; font-size: 0.9rem; }
-  .ttt-dropdown { position: relative; display: inline-block; width: 130px; color: #00ffff; font-size: 0.9rem; cursor: pointer; user-select: none; }
-  .ttt-selected {
-    background: rgba(20,10,50,0.9); border: 2px solid #00ffff; border-radius: 10px;
-    padding: 8px 12px; box-shadow: 0 0 14px rgba(0,255,255,0.35);
-    text-shadow: 0 0 8px #00ffff; transition: all 0.2s;
-  }
-  .ttt-selected::after { content: "▼"; float: right; font-size: 0.75em; margin-top: 2px; transition: transform 0.2s; }
-  .ttt-dropdown.open .ttt-selected::after { transform: rotate(180deg); }
-  .ttt-options {
-    display: none; position: absolute; width: 100%;
-    background: rgba(20,10,40,0.97); border: 1px solid #00ffff;
-    border-radius: 10px; margin-top: 5px; z-index: 20; overflow: hidden;
-    box-shadow: 0 0 16px rgba(0,255,255,0.35);
-  }
-  .ttt-dropdown.open .ttt-options { display: block; }
-  .ttt-option { padding: 8px 12px; color: #fff; transition: all 0.2s; font-size: 0.9rem; }
-  .ttt-option:hover { background: #00ffff; color: #000; }
-  .ttt-board {
-    display: grid; grid-template-columns: repeat(3, 95px); grid-template-rows: repeat(3, 95px);
-    gap: 8px; background: linear-gradient(145deg, #3a0ca3, #7209b7);
-    padding: 14px; border-radius: 18px; box-shadow: 0 0 28px rgba(114,9,183,0.5);
-    margin: 4px 0;
-  }
-  .ttt-cell {
-    background: radial-gradient(circle at 30% 30%, #2b1055, #1a0535);
-    border: 2px solid rgba(255,255,255,0.15); border-radius: 13px;
-    display: flex; justify-content: center; align-items: center;
-    font-size: 2.3em; cursor: pointer; transition: all 0.25s;
-    box-shadow: inset 0 0 8px rgba(255,255,255,0.08);
-  }
-  .ttt-cell:hover:not(.taken):not(.dead) { transform: scale(1.05); box-shadow: 0 0 16px rgba(255,255,255,0.2); }
-  .ttt-cell.X { color: #00ffff; text-shadow: 0 0 14px #00ffff, 0 0 28px #00ffff; }
-  .ttt-cell.O { color: #ff00ff; text-shadow: 0 0 14px #ff00ff, 0 0 28px #ff00ff; }
-  .ttt-cell.win-cell { box-shadow: 0 0 22px rgba(255,220,0,0.7); border-color: rgba(255,220,0,0.7); }
-  #ttt-status { margin-top: 16px; font-size: 1.1rem; text-shadow: 0 0 8px #fff; min-height: 1.5em; }
-  #ttt-reset {
-    margin-top: 12px; padding: 9px 20px; font-size: 0.95rem;
-    border: none; border-radius: 8px; background: #00bfff; color: white;
-    cursor: pointer; transition: background 0.2s; box-shadow: 0 0 12px #00bfff;
-  }
-  #ttt-reset:hover { background: #0088cc; }
-  .ttt-diff-row { opacity: 1; transition: opacity 0.2s; }
-  .ttt-diff-row.dimmed { opacity: 0.4; pointer-events: none; }
+*{box-sizing:border-box;margin:0;padding:0}
+#g{font-family:'Segoe UI',sans-serif;background:#050510;min-height:580px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px 16px;position:relative;overflow:hidden;border-radius:14px}
+#g::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 0%,rgba(120,0,255,0.18),transparent),radial-gradient(ellipse 50% 40% at 80% 100%,rgba(0,200,255,0.1),transparent);pointer-events:none}
+.stars{position:absolute;inset:0;pointer-events:none}
+.star{position:absolute;width:2px;height:2px;border-radius:50%;background:#fff;opacity:0.25}
+h1{font-size:1.5rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#fff;margin-bottom:6px;position:relative}
+h1 span.cx{color:#00e5ff}
+h1 span.co{color:#df00ff}
+.sub{font-size:0.7rem;letter-spacing:0.25em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:20px}
+.score-row{display:flex;gap:12px;margin-bottom:18px}
+.score-box{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:8px 20px;text-align:center;min-width:72px}
+.score-box .sl{font-size:0.62rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:2px}
+.score-box .sv{font-size:1.4rem;font-weight:700}
+.score-box.sx .sv{color:#00e5ff}
+.score-box.so .sv{color:#df00ff}
+.score-box.sd .sv{color:rgba(255,255,255,0.45)}
+.ctrls{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;justify-content:center}
+.pill-group{display:flex;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:40px;overflow:hidden}
+.pill{padding:6px 14px;font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.4);cursor:pointer;transition:all 0.2s;white-space:nowrap;user-select:none}
+.pill.on{background:rgba(255,255,255,0.1);color:#fff}
+.board{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:6px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:16px;width:282px}
+.cell{width:86px;height:86px;border-radius:12px;background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.07);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.15s,border-color 0.15s;position:relative;overflow:hidden}
+.cell:hover:not(.tk):not(.dead){background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.15)}
+.cell svg{width:42px;height:42px;opacity:0;transition:opacity 0.18s}
+.cell.tk svg{opacity:1}
+.cell.win{border-color:rgba(255,210,0,0.55);background:rgba(255,210,0,0.06)}
+.cell.win svg{filter:drop-shadow(0 0 6px currentColor)}
+#status{margin-top:16px;font-size:0.82rem;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.5);min-height:1.2em;transition:color 0.2s}
+#status.win-x{color:#00e5ff}
+#status.win-o{color:#df00ff}
+#status.draw{color:rgba(255,255,255,0.4)}
+.btns{display:flex;gap:8px;margin-top:14px}
+.btn{padding:8px 20px;border-radius:40px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.7);font-size:0.72rem;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;transition:all 0.2s}
+.btn:hover{background:rgba(255,255,255,0.1);color:#fff;border-color:rgba(255,255,255,0.25)}
+.btn.primary{border-color:rgba(0,229,255,0.4);color:#00e5ff}
+.btn.primary:hover{background:rgba(0,229,255,0.08)}
 </style>
 
-<div id="ttt-root">
-  <h1>Neon Tic Tac Toe</h1>
+<div id="g">
+  <div class="stars" id="stars"></div>
+  <h1><span class="cx">X</span> &nbsp;vs&nbsp; <span class="co">O</span></h1>
+  <div class="sub">Neon Tic Tac Toe</div>
 
-  <div class="ttt-controls">
-    <span class="ttt-label">Mode:</span>
-    <div class="ttt-dropdown" id="modeDD">
-      <div class="ttt-selected" id="modeSel">Vs Bot</div>
-      <div class="ttt-options" id="modeOpts">
-        <div class="ttt-option" data-val="bot">Vs Bot</div>
-        <div class="ttt-option" data-val="2p">2 Players</div>
-      </div>
+  <div class="score-row">
+    <div class="score-box sx"><div class="sl">You</div><div class="sv" id="sx">0</div></div>
+    <div class="score-box sd"><div class="sl">Draw</div><div class="sv" id="sd">0</div></div>
+    <div class="score-box so"><div class="sl">Bot</div><div class="sv" id="so">0</div></div>
+  </div>
+
+  <div class="ctrls">
+    <div class="pill-group" id="modeGroup">
+      <div class="pill on" data-v="bot">vs Bot</div>
+      <div class="pill" data-v="2p">2 Players</div>
+    </div>
+    <div class="pill-group" id="diffGroup">
+      <div class="pill on" data-v="easy">Easy</div>
+      <div class="pill" data-v="medium">Med</div>
+      <div class="pill" data-v="hard">Hard</div>
     </div>
   </div>
 
-  <div class="ttt-controls ttt-diff-row" id="diffRow">
-    <span class="ttt-label">Difficulty:</span>
-    <div class="ttt-dropdown" id="diffDD">
-      <div class="ttt-selected" id="diffSel">Easy</div>
-      <div class="ttt-options" id="diffOpts">
-        <div class="ttt-option" data-val="easy">Easy</div>
-        <div class="ttt-option" data-val="medium">Medium</div>
-        <div class="ttt-option" data-val="hard">Hard</div>
-      </div>
-    </div>
+  <div class="board" id="board">
+    <div class="cell" data-i="0"></div>
+    <div class="cell" data-i="1"></div>
+    <div class="cell" data-i="2"></div>
+    <div class="cell" data-i="3"></div>
+    <div class="cell" data-i="4"></div>
+    <div class="cell" data-i="5"></div>
+    <div class="cell" data-i="6"></div>
+    <div class="cell" data-i="7"></div>
+    <div class="cell" data-i="8"></div>
   </div>
 
-  <div class="ttt-board" id="board">
-    <div class="ttt-cell" data-i="0"></div>
-    <div class="ttt-cell" data-i="1"></div>
-    <div class="ttt-cell" data-i="2"></div>
-    <div class="ttt-cell" data-i="3"></div>
-    <div class="ttt-cell" data-i="4"></div>
-    <div class="ttt-cell" data-i="5"></div>
-    <div class="ttt-cell" data-i="6"></div>
-    <div class="ttt-cell" data-i="7"></div>
-    <div class="ttt-cell" data-i="8"></div>
+  <div id="status">Your turn</div>
+  <div class="btns">
+    <button class="btn primary" id="restartBtn">Restart</button>
+    <button class="btn" id="resetScoreBtn">Reset score</button>
   </div>
-
-  <div id="ttt-status">Your turn (X)</div>
-  <button id="ttt-reset">Restart Game</button>
 </div>
 
 <script>
-(function() {
-  const cells = document.querySelectorAll(".ttt-cell");
-  const statusEl = document.getElementById("ttt-status");
-  const resetBtn = document.getElementById("ttt-reset");
-  const diffRow = document.getElementById("diffRow");
+(function(){
+const SVG_X = `<svg viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="8" y1="8" x2="34" y2="34" stroke="#00e5ff" stroke-width="4.5" stroke-linecap="round"/><line x1="34" y1="8" x2="8" y2="34" stroke="#00e5ff" stroke-width="4.5" stroke-linecap="round"/></svg>`;
+const SVG_O = `<svg viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="21" cy="21" r="13" stroke="#df00ff" stroke-width="4.5"/></svg>`;
 
-  let board, gameOver, botThinking, currentPlayer, gameMode, difficulty;
-  gameMode = "bot"; difficulty = "easy";
+const starsEl = document.getElementById('stars');
+for(let i=0;i<55;i++){
+  const s=document.createElement('div');
+  s.className='star';
+  s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;opacity:${0.1+Math.random()*0.3};width:${Math.random()<0.15?3:2}px;height:${Math.random()<0.15?3:2}px`;
+  starsEl.appendChild(s);
+}
 
-  const WIN_PATTERNS = [
-    [0,1,2],[3,4,5],[6,7,8],
-    [0,3,6],[1,4,7],[2,5,8],
-    [0,4,8],[2,4,6]
-  ];
+const cells=document.querySelectorAll('.cell');
+const statusEl=document.getElementById('status');
+const sxEl=document.getElementById('sx');
+const soEl=document.getElementById('so');
+const sdEl=document.getElementById('sd');
+const WIN=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
 
-  // --- Dropdowns ---
-  function setupDropdown(ddId, selId, optsId, onChange) {
-    const dd = document.getElementById(ddId);
-    const sel = document.getElementById(selId);
-    const opts = document.getElementById(optsId);
-    sel.addEventListener("click", e => { e.stopPropagation(); dd.classList.toggle("open"); });
-    opts.querySelectorAll(".ttt-option").forEach(opt => {
-      opt.addEventListener("click", () => {
-        sel.textContent = opt.textContent;
-        dd.classList.remove("open");
-        onChange(opt.dataset.val);
-      });
-    });
-    return dd;
-  }
+let board,gameOver,botThinking,cur,mode,diff,scores;
+mode='bot'; diff='easy'; scores={X:0,O:0,D:0};
 
-  const modeDD = setupDropdown("modeDD", "modeSel", "modeOpts", val => {
-    gameMode = val;
-    diffRow.classList.toggle("dimmed", val === "2p");
-    restartGame();
-  });
-
-  const diffDD = setupDropdown("diffDD", "diffSel", "diffOpts", val => {
-    difficulty = val;
-    restartGame();
-  });
-
-  document.addEventListener("click", () => {
-    modeDD.classList.remove("open");
-    diffDD.classList.remove("open");
-  });
-
-  // --- Game State ---
-  function restartGame() {
-    board = ["","","","","","","","",""];
-    gameOver = false;
-    botThinking = false;  // FIX: cancel any pending bot move intent
-    currentPlayer = "X";
-    cells.forEach(c => { c.textContent = ""; c.className = "ttt-cell"; });
-    updateStatus();
-  }
-
-  function updateStatus() {
-    if (gameOver) return;
-    if (gameMode === "2p") {
-      statusEl.textContent = `Player ${currentPlayer}'s turn`;
-    } else {
-      statusEl.textContent = currentPlayer === "X" ? "Your turn (X)" : "Bot thinking...";
-    }
-  }
-
-  // --- Cell click ---
-  cells.forEach(cell => {
-    cell.addEventListener("click", () => {
-      const i = parseInt(cell.dataset.i);
-      if (gameOver || board[i] !== "" || botThinking) return;
-      if (gameMode === "bot" && currentPlayer !== "X") return;
-
-      makeMove(i, currentPlayer);
-      if (gameOver) return;
-
-      if (gameMode === "2p") {
-        currentPlayer = currentPlayer === "X" ? "O" : "X";
-        updateStatus();
-      } else {
-        // Bot's turn
-        currentPlayer = "O";
-        botThinking = true;
-        updateStatus();
-        const snapshot = board.slice(); // capture state at time of click
-        setTimeout(() => {
-          // FIX: guard — if game restarted during delay, abort
-          if (gameOver || board !== snapshot && board.join("") !== snapshot.join("")) {
-            // board was reset, don't move
-          } else if (!gameOver) {
-            const move = getBotMove();
-            if (move !== undefined) {
-              makeMove(move, "O");
-              if (!gameOver) {
-                currentPlayer = "X";
-                updateStatus();
-              }
-            }
-          }
-          botThinking = false;
-        }, 500);
-      }
+function pillGroup(id,cb){
+  document.getElementById(id).querySelectorAll('.pill').forEach(p=>{
+    p.addEventListener('click',()=>{
+      document.getElementById(id).querySelectorAll('.pill').forEach(x=>x.classList.remove('on'));
+      p.classList.add('on');
+      cb(p.dataset.v);
     });
   });
+}
 
-  function makeMove(i, player) {
-    board[i] = player;
-    const cell = cells[i];
-    cell.textContent = player;
-    cell.classList.add(player, "taken");
-    checkResult();
-  }
+pillGroup('modeGroup',v=>{
+  mode=v;
+  const dg=document.getElementById('diffGroup');
+  dg.style.opacity=v==='2p'?'0.35':'1';
+  dg.style.pointerEvents=v==='2p'?'none':'auto';
+  const sb=document.querySelector('.score-box.so .sl');
+  if(sb) sb.textContent=v==='2p'?'O':'Bot';
+  restart();
+});
+pillGroup('diffGroup',v=>{ diff=v; restart(); });
 
-  function checkResult() {
-    for (const [a,b,c] of WIN_PATTERNS) {
-      if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-        const winner = board[a];
-        gameOver = true;
-        cells[a].classList.add("win-cell");
-        cells[b].classList.add("win-cell");
-        cells[c].classList.add("win-cell");
-        cells.forEach(c => c.classList.add("dead"));
-        if (gameMode === "2p") statusEl.textContent = `Player ${winner} wins!`;
-        else statusEl.textContent = winner === "X" ? "You win!" : "Bot wins!";
-        return;
+document.getElementById('restartBtn').addEventListener('click',restart);
+document.getElementById('resetScoreBtn').addEventListener('click',()=>{
+  scores={X:0,O:0,D:0};
+  sxEl.textContent='0'; soEl.textContent='0'; sdEl.textContent='0';
+  restart();
+});
+cells.forEach(c=>c.addEventListener('click',()=>{
+  const i=parseInt(c.dataset.i);
+  if(gameOver||board[i]||botThinking) return;
+  if(mode==='bot'&&cur!=='X') return;
+  place(i,cur);
+  if(gameOver) return;
+  if(mode==='2p'){ cur=cur==='X'?'O':'X'; setStatus(); }
+  else{
+    cur='O'; botThinking=true; setStatus();
+    const snap=board.slice();
+    setTimeout(()=>{
+      if(!gameOver&&board.join('')===snap.join('')){
+        const m=getBot();
+        if(m!==undefined){ place(m,'O'); if(!gameOver){cur='X';setStatus();} }
       }
-    }
-    if (!board.includes("")) {
-      gameOver = true;
-      cells.forEach(c => c.classList.add("dead"));
-      statusEl.textContent = "It's a draw!";
-    }
+      botThinking=false;
+    },480);
   }
+}));
 
-  // --- Bot Logic ---
-  function getBotMove() {
-    const avail = board.map((v,i) => v === "" ? i : null).filter(v => v !== null);
-    if (!avail.length) return undefined;
+function restart(){
+  board=Array(9).fill('');
+  gameOver=false; botThinking=false; cur='X';
+  cells.forEach(c=>{c.innerHTML='';c.className='cell';});
+  statusEl.className='';
+  setStatus();
+}
 
-    if (difficulty === "easy") {
-      return randomMove(avail);
-    }
-    if (difficulty === "medium") {
-      // FIX: Medium = always block/win if possible, otherwise 65% smart
-      const smart = bestMove();
-      const isWinOrBlock = isWinningOrBlocking(smart);
-      if (isWinOrBlock || Math.random() < 0.65) return smart;
-      return randomMove(avail);
-    }
-    return bestMove();
-  }
+function setStatus(){
+  if(gameOver) return;
+  if(mode==='2p') statusEl.textContent=`Player ${cur}'s turn`;
+  else statusEl.textContent=cur==='X'?'Your turn':'Bot thinking...';
+}
 
-  function isWinningOrBlocking(move) {
-    // Check if this move wins for O
-    board[move] = "O";
-    let wins = checkWin(board, "O");
-    board[move] = "";
-    if (wins) return true;
-    // Check if this move blocks X from winning
-    board[move] = "X";
-    let blocks = checkWin(board, "X");
-    board[move] = "";
-    return blocks;
-  }
+function place(i,p){
+  board[i]=p;
+  cells[i].innerHTML=p==='X'?SVG_X:SVG_O;
+  cells[i].classList.add('tk');
+  check();
+}
 
-  function checkWin(b, player) {
-    return WIN_PATTERNS.some(([a,c,d]) => b[a] === player && b[c] === player && b[d] === player);
-  }
-
-  function randomMove(avail) {
-    return avail[Math.floor(Math.random() * avail.length)];
-  }
-
-  function bestMove() {
-    let best = -Infinity, move;
-    for (let i = 0; i < 9; i++) {
-      if (board[i] === "") {
-        board[i] = "O";
-        const score = minimax(board, 0, false, -Infinity, Infinity);
-        board[i] = "";
-        if (score > best) { best = score; move = i; }
-      }
-    }
-    return move;
-  }
-
-  // FIX: Added alpha-beta pruning for performance
-  function minimax(b, depth, isMax, alpha, beta) {
-    if (checkWin(b, "O")) return 10 - depth;
-    if (checkWin(b, "X")) return depth - 10;
-    if (!b.includes("")) return 0;
-
-    if (isMax) {
-      let best = -Infinity;
-      for (let i = 0; i < 9; i++) {
-        if (b[i] === "") {
-          b[i] = "O";
-          best = Math.max(best, minimax(b, depth+1, false, alpha, beta));
-          b[i] = "";
-          alpha = Math.max(alpha, best);
-          if (beta <= alpha) break;
-        }
-      }
-      return best;
-    } else {
-      let best = Infinity;
-      for (let i = 0; i < 9; i++) {
-        if (b[i] === "") {
-          b[i] = "X";
-          best = Math.min(best, minimax(b, depth+1, true, alpha, beta));
-          b[i] = "";
-          beta = Math.min(beta, best);
-          if (beta <= alpha) break;
-        }
-      }
-      return best;
+function check(){
+  for(const [a,b,c] of WIN){
+    if(board[a]&&board[a]===board[b]&&board[a]===board[c]){
+      gameOver=true;
+      [a,b,c].forEach(i=>cells[i].classList.add('win'));
+      cells.forEach(c=>c.classList.add('dead'));
+      const w=board[a];
+      scores[w]++;
+      sxEl.textContent=scores.X; soEl.textContent=scores.O;
+      if(mode==='2p'){ statusEl.textContent=`Player ${w} wins!`; statusEl.className=w==='X'?'win-x':'win-o'; }
+      else{ statusEl.textContent=w==='X'?'You win!':'Bot wins!'; statusEl.className=w==='X'?'win-x':'win-o'; }
+      return;
     }
   }
+  if(!board.includes('')){
+    gameOver=true; cells.forEach(c=>c.classList.add('dead'));
+    scores.D++; sdEl.textContent=scores.D;
+    statusEl.textContent="It's a draw"; statusEl.className='draw';
+  }
+}
 
-  resetBtn.addEventListener("click", restartGame);
-  restartGame();
+function getBot(){
+  const avail=board.map((v,i)=>v===''?i:null).filter(v=>v!==null);
+  if(!avail.length) return;
+  if(diff==='easy') return avail[Math.floor(Math.random()*avail.length)];
+  const best=minimax_best();
+  if(diff==='medium'){
+    if(isWinBlock(best)||Math.random()<0.65) return best;
+    return avail[Math.floor(Math.random()*avail.length)];
+  }
+  return best;
+}
+function isWinBlock(m){
+  board[m]='O'; const w=hasWin(board,'O'); board[m]='';
+  if(w) return true;
+  board[m]='X'; const b=hasWin(board,'X'); board[m]='';
+  return b;
+}
+function hasWin(b,p){ return WIN.some(([a,c,d])=>b[a]===p&&b[c]===p&&b[d]===p); }
+function minimax_best(){
+  let best=-Infinity,move;
+  for(let i=0;i<9;i++){
+    if(!board[i]){
+      board[i]='O';
+      const s=mm(board,0,false,-Infinity,Infinity);
+      board[i]='';
+      if(s>best){best=s;move=i;}
+    }
+  }
+  return move;
+}
+function mm(b,d,max,a,be){
+  if(hasWin(b,'O')) return 10-d;
+  if(hasWin(b,'X')) return d-10;
+  if(!b.includes('')) return 0;
+  if(max){
+    let best=-Infinity;
+    for(let i=0;i<9;i++){if(!b[i]){b[i]='O';best=Math.max(best,mm(b,d+1,false,a,be));b[i]='';a=Math.max(a,best);if(be<=a)break;}}
+    return best;
+  } else {
+    let best=Infinity;
+    for(let i=0;i<9;i++){if(!b[i]){b[i]='X';best=Math.min(best,mm(b,d+1,true,a,be));b[i]='';be=Math.min(be,best);if(be<=a)break;}}
+    return best;
+  }
+}
+restart();
 })();
 </script>
